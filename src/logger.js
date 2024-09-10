@@ -1,2 +1,1 @@
-// @TODO: Implement logger
-export default logger = console;
+module.exports = console;
