@@ -26,15 +26,15 @@ module.exports = function(projectRoot) {
           test: /\.(js|jsx)$/,
           exclude: /node_modules/,
           use: {
-            loader: "babel-loader",
+            loader: require.resolve('babel-loader'),
             options: {
               presets: [
-                ['@babel/preset-env', {
+                [require.resolve('@babel/preset-env'), {
                   targets: {
                     node: '14'
                   }
                 }],
-                '@babel/preset-react'
+                require.resolve('@babel/preset-react')
               ]
             }
           }
