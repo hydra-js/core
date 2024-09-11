@@ -6,18 +6,23 @@ module.exports = (projectRoot) => {
   const config = getWebpackConfig(projectRoot);
   const compiler = webpack(config);
 
-  compiler.run((err, stats) => {
-    if (err) {
-      console.error(err.stack || err);
-      if (err.details) {
-        console.error(err.details);
+  return new Promise((resolve, reject) => {
+    compiler.run((err, stats) => {
+      if (err) {
+        console.error(err.stack || err);
+        if (err.details) {
+          console.error(err.details);
+        }
+        reject(err);
+        return;
       }
-      return;
-    }
 
-    console.log(stats.toString({
-      chunks: false,
-      colors: true
-    }));
+      console.log(stats.toString({
+        chunks: false,
+        colors: true
+      }));
+
+      resolve();
+    });
   });
 };

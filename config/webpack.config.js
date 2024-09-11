@@ -1,6 +1,6 @@
 const path = require('path');
 const nodeExternals = require('webpack-node-externals');
-const WebpackShellPluginNext = require('webpack-shell-plugin-next');
+// const WebpackShellPluginNext = require('webpack-shell-plugin-next');
 const CopyPlugin = require('copy-webpack-plugin');
 const Dotenv = require('dotenv-webpack');
 
@@ -40,13 +40,13 @@ module.exports = (projectRoot) => ({
     ]
   },
   plugins: [
-    new WebpackShellPluginNext({
-      onBuildEnd: {
-        scripts: ['npm run start:dev'],
-        blocking: false,
-        parallel: true
-      }
-    }),
+    // new WebpackShellPluginNext({
+    //   onBuildEnd: {
+    //     scripts: ['npm run start:dev'],
+    //     blocking: false,
+    //     parallel: true
+    //   }
+    // }),
     new CopyPlugin({
       patterns: [
         { from: path.resolve(projectRoot, 'public'), to: 'public' },

@@ -1,17 +1,14 @@
 const path = require('path');
-// const { spawn, execSync } = require('child_process');
-const { spawn } = require('child_process');
+const { spawn, execSync } = require('child_process');
 
 module.exports = (projectRoot) => {
-  // @TODO: Make this logic available once webpack config is fixed
-  // by removing WebpackShellPluginNext
-  // console.log('Building project...');
-  // try {
-  //   execSync('hydra-scripts build', { stdio: 'inherit', cwd: projectRoot });
-  // } catch (error) {
-  //   console.error('Build failed:', error.message);
-  //   process.exit(1);
-  // }
+  console.log('Building project...');
+  try {
+    execSync('hydra-scripts build', { stdio: 'inherit', cwd: projectRoot });
+  } catch (error) {
+    console.error('Build failed:', error.message);
+    process.exit(1);
+  }
 
   const distIndexPath = path.join(projectRoot, 'dist', 'index.js');
 
