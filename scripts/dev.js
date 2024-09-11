@@ -1,18 +1,20 @@
-const path = require('path');
-const { spawn } = require('child_process');
-const webpack = require('webpack');
-const nodemon = require('nodemon');
+'use strict';
 
-const getWebpackConfig = require('../config/webpack.config');
+var path = require('path');
+var spawn = require('child_process').spawn;
+var webpack = require('webpack');
+var nodemon = require('nodemon');
 
-module.exports = (projectRoot) => {
-  const config = getWebpackConfig(projectRoot);
+var getWebpackConfig = require('../config/webpack.config');
+
+module.exports = function(projectRoot) {
+  var config = getWebpackConfig(projectRoot);
   config.mode = 'development';
   config.watch = true;
 
-  const compiler = webpack(config);
+  var compiler = webpack(config);
 
-  compiler.watch({}, (err, stats) => {
+  compiler.watch({}, function(err, stats) {
     if (err) {
       console.error(err.stack || err);
       if (err.details) {
@@ -27,20 +29,20 @@ module.exports = (projectRoot) => {
     }));
   });
 
-  const serverPath = path.join(projectRoot, 'dist', 'index.js');
+  var serverPath = path.join(projectRoot, 'dist', 'index.js');
 
   nodemon({
     script: serverPath,
     watch: [path.join(projectRoot, 'dist')],
-    delay: 1000, // 1 second delay
+    delay: 1000 // 1 second delay
   });
 
-  nodemon.on('start', () => {
+  nodemon.on('start', function() {
     console.log('Server has started');
-  }).on('quit', () => {
+  }).on('quit', function() {
     console.log('Server has quit');
     process.exit();
-  }).on('restart', (files) => {
+  }).on('restart', function(files) {
     console.log('Server restarted due to: ', files);
   });
 };

@@ -1,13 +1,14 @@
-const webpack = require('webpack');
+'use strict';
 
-const getWebpackConfig = require('../config/webpack.config');
+var webpack = require('webpack');
+var getWebpackConfig = require('../config/webpack.config');
 
-module.exports = (projectRoot) => {
-  const config = getWebpackConfig(projectRoot);
-  const compiler = webpack(config);
+module.exports = function(projectRoot) {
+  var config = getWebpackConfig(projectRoot);
+  var compiler = webpack(config);
 
-  return new Promise((resolve, reject) => {
-    compiler.run((err, stats) => {
+  return new Promise(function(resolve, reject) {
+    compiler.run(function(err, stats) {
       if (err) {
         console.error(err.stack || err);
         if (err.details) {

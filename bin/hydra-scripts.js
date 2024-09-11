@@ -1,29 +1,28 @@
 #!/usr/bin/env node
 
-const yargs = require('yargs/yargs');
-const { hideBin } = require('yargs/helpers');
+var yargs = require('yargs/yargs');
+var hideBin = require('yargs/helpers').hideBin;
 
-const build = require('../scripts/build');
-const serve = require('../scripts/serve');
-const dev = require('../scripts/dev');
+var build = require('../scripts/build');
+var serve = require('../scripts/serve');
+var dev = require('../scripts/dev');
 
 yargs(hideBin(process.argv))
-  .command('build', 'Build the project', {}, async (argv) => {
-    try {
-      await build(process.cwd());
+  .command('build', 'Build the project', {}, function(argv) {
+    build(process.cwd()).then(function() {
       console.log('Build completed successfully');
-    } catch (error) {
+    }).catch(function(error) {
       console.error('Build failed:', error);
       process.exit(1);
-    }
+    });
   })
-  .command('serve', 'Serve the project', (yargs) => {
+  .command('serve', 'Serve the project', function(yargs) {
     return yargs.option('dev', {
       alias: 'd',
       type: 'boolean',
       description: 'Run in development mode'
     });
-  }, (argv) => {
+  }, function(argv) {
     if (argv.dev) {
       dev(process.cwd());
     } else {
