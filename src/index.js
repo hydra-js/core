@@ -6,6 +6,7 @@ var dotenv = require('dotenv');
 var exphbs = require('express-handlebars');
 var fs = require('fs');
 var React = require('react');
+var ReactDOM = require('react-dom');
 var ReactDOMServer = require('react-dom/server');
 var handlebars = require('handlebars');
 
@@ -65,36 +66,40 @@ function bootstrapServer(options) {
 
   // Request handler
   app.use((err, req, res, next) => {
-    // @TODO: Improve
-    if (err.hasOwnProperty('view')) {
-      // Handle .js files
-      if (fs.existsSync(path.join(process.cwd(), 'routes', err.view.name + '.js'))) {
-        var handlerPath = path.join(process.cwd(), 'routes', err.view.name + '.js');
-        var handler = require(handlerPath)();
-        if (handler[req.method.toLowerCase()]) {
-          return handler[req.method.toLowerCase()](req, res, next);
-        } else {
-          return res.render('404', { page: page });
-        }
-      }
-      // Handle .jsx files
-      if (fs.existsSync(path.join(process.cwd(), 'routes', err.view.name + '.jsx'))) {
-        var reactElementPath = path.join(process.cwd(), 'routes', err.view.name + '.jsx');
-        var reactElement = require(reactElementPath).default;
-        var jsx = React.createElement(reactElement, {});
-        var jsxToHtml = ReactDOMServer.renderToString(jsx);
-
-        var layoutPath = path.join(path.join(process.cwd(), 'layouts', 'index.html'));
-        var withTemplate = handlebars.compile(
-          fs.readFileSync(layoutPath, 'utf8')
-        );
-        var html = withTemplate({ body: jsxToHtml });
-        return res.send(html);
-      }
+    if (!err.hasOwnProperty('view')) {
+      logger.error(err);
+      return res.render('404', { page: page });
     }
 
-    logger.error(err);
-    return res.render('404', { page: page });
+    var handlerPath = path.join(process.cwd(), 'dist', 'routes', err.view.name + '.js');
+    if (!fs.existsSync(handlerPath)) {
+      logger.error(err);
+      return res.render('404', { page: page });
+    }
+
+    // Read the file content
+    const fileContent = fs.readFileSync(handlerPath, 'utf8');
+
+    // Check for compiled React patterns
+    const isCompiledReact = /React\.createElement|_react2\.default/.test(fileContent);
+
+    if (isCompiledReact) {
+      const reactElement = require(handlerPath).default;
+      const jsx = React.createElement(reactElement, {});
+      const jsxToHtml = ReactDOMServer.renderToString(jsx);
+
+      const layoutPath = path.join(process.cwd(), 'dist', 'layouts', 'index.html');
+      const withTemplate = handlebars.compile(fs.readFileSync(layoutPath, 'utf8'));
+      const html = withTemplate({ body: jsxToHtml });
+      return res.send(html);
+    }
+
+    var handlerPath = path.join(process.cwd(), 'dist', 'routes', err.view.name + '.js');
+    var handler = require(handlerPath)();
+
+    if (!handler[req.method.toLowerCase()]) return res.render('404', { page: page });
+
+    return handler[req.method.toLowerCase()](req, res, next);
   });
 
   function startServer() {
@@ -109,4 +114,4 @@ function bootstrapServer(options) {
   };
 }
 
-module.exports = { bootstrapServer };
+module.exports = { bootstrapServer, React, ReactDOM };
