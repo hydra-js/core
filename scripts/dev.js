@@ -31,13 +31,25 @@ module.exports = function(projectRoot) {
 
   var serverPath = path.join(projectRoot, 'dist', 'index.js');
 
-  nodemon({
+  var nodemonInstance = nodemon({
     script: serverPath,
     watch: [path.join(projectRoot, 'dist')],
-    delay: 1000 // 1 second delay
+    delay: 1000, // 1 second delay
+    stdout: false,
+    stderr: false
   });
 
-  nodemon.on('start', function() {
+  // Pipe stdout to our console
+  nodemonInstance.on('stdout', function (stdout) {
+    process.stdout.write(stdout);
+  });
+
+  // Pipe stderr to our console
+  nodemonInstance.on('stderr', function (stderr) {
+    process.stderr.write(stderr);
+  });
+
+  nodemonInstance.on('start', function() {
     console.log('Server has started');
   }).on('quit', function() {
     console.log('Server has quit');
