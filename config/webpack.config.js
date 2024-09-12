@@ -4,6 +4,7 @@ var path = require('path');
 var nodeExternals = require('webpack-node-externals');
 var CopyPlugin = require('copy-webpack-plugin');
 var Dotenv = require('dotenv-webpack');
+var babel = require('@babel/core');
 
 var NODE_ENV = process.env.NODE_ENV || 'production';
 
@@ -46,7 +47,31 @@ module.exports = function(projectRoot) {
         patterns: [
           { from: path.resolve(projectRoot, 'public'), to: 'public' },
           { from: path.resolve(projectRoot, 'layouts'), to: 'layouts' },
-          { from: path.resolve(projectRoot, 'routes'), to: 'routes' }
+          { 
+            from: path.resolve(projectRoot, 'routes'),
+            to: ({ context, absoluteFilename }) => {
+              const relativePath = path.relative(context, absoluteFilename);
+              return path.join('routes', relativePath).replace(/\.jsx$/, '.js');
+            },
+            transform(content, absoluteFrom) {
+              if (absoluteFrom.endsWith('.jsx') || absoluteFrom.endsWith('.js')) {
+                // Transform JSX to JS using Babel
+                const result = babel.transformSync(content, {
+                  presets: [
+                    [require.resolve('@babel/preset-env'), {
+                      targets: {
+                        node: '14'
+                      }
+                    }],
+                    require.resolve('@babel/preset-react')
+                  ],
+                  filename: absoluteFrom,
+                });
+                return result.code;
+              }
+              return content;
+            }
+          }
         ],
       }),
       new Dotenv()
