@@ -77,14 +77,11 @@ function bootstrapServer(options) {
       return res.render('404', { page: page });
     }
 
-    // Read the file content
-    const fileContent = fs.readFileSync(handlerPath, 'utf8');
+    var method = req.method.toLowerCase();
+    var handler = require(handlerPath)();
 
-    // Check for compiled React patterns
-    const isCompiledReact = /React\.createElement|_react2\.default/.test(fileContent);
-
-    if (isCompiledReact) {
-      const reactElement = require(handlerPath).default;
+    if (handler.render && typeof handler.render === 'function' && method === 'get') {
+      const reactElement = handler.render();
       const jsx = React.createElement(reactElement, {});
       const jsxToHtml = ReactDOMServer.renderToString(jsx);
 
@@ -93,9 +90,6 @@ function bootstrapServer(options) {
       const html = withTemplate({ body: jsxToHtml });
       return res.send(html);
     }
-
-    var handlerPath = path.join(process.cwd(), 'dist', 'routes', err.view.name + '.js');
-    var handler = require(handlerPath)();
 
     if (!handler[req.method.toLowerCase()]) return res.render('404', { page: page });
 
