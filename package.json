@@ -8,6 +8,7 @@
   },
   "scripts": {
     "build": "babel src -d dist",
+    "watch": "babel src -d dist --watch",
     "test": "jest",
     "prepublishOnly": "npm run build"
   },
