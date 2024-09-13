@@ -66,6 +66,8 @@ module.exports = function(projectRoot) {
                     require.resolve('@babel/preset-react')
                   ],
                   filename: absoluteFrom,
+                  comments: false,
+                  minified: false
                 });
                 return result.code;
               }
